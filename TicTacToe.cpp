@@ -21,6 +21,12 @@ bool checkInput (const char& input, const char board[ROW][COL]) {
     return true;
 }
 
+/*
+board 
+7 8 9
+4 5 6
+1 2 3
+ */
 
 int main(int argc, const char* argv[]) {
 
@@ -39,10 +45,10 @@ int main(int argc, const char* argv[]) {
         }
         int move = input - '0' - 1;
         
-        int i = (ROW - 1) + move / COL;
-        int j = 
-        if (board[move / COL])
-
+        int i = abs(move / COL - ROW) - 1;
+        int j = move % COL;
+    
+        std::cout << i << j << '\n';
 
 
     }
