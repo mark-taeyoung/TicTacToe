@@ -6,6 +6,15 @@
 #define ROW 3
 
 
+int randNumGenerator(const int& lo, const int& hi) {
+
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> distribution(lo, hi);
+
+    return distribution(generator);
+}
+
 bool checkInput (const char& input, const char board[ROW][COL]) {
 
     if (!isdigit(input)) {
@@ -23,15 +32,6 @@ bool checkInput (const char& input, const char board[ROW][COL]) {
     return true;
 }
 
-
-void moveTurn (char board[ROW][COL], const int& goTo, const char& marker) {
-
-    int i = abs(goTo / COL - ROW) - 1;
-    int j = goTo % COL;
-
-    board[i][j] = marker;
-}
-
 void showBoard(char board[ROW][COL]) {
 
     printf("\n\n"); 
@@ -44,14 +44,43 @@ void showBoard(char board[ROW][COL]) {
     return;
 }
 
+bool rowCrossed(char board[ROW][COL]) { 
 
-int randNumGenerator(const int& lo, const int& hi) {
-    std::random_device device;
-    std::mt19937 generator(device());
-    std::uniform_int_distribution<int> distribution(lo, hi);
+    for (int i=0; i<ROW; i++) { 
+        if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != 0) 
+            return true; 
+    } 
 
-    return distribution(generator);
+    return false; 
+} 
+
+bool columnCrossed(char board[ROW][COL]) {
+
+    for (int i=0; i<COL; i++) { 
+        if (board[0][i] == board[1][i] && board[1][i] == board[2][i] &&  board[0][i] != 0) 
+            return true; 
+    } 
+
+    return false ; 
+} 
+  
+bool diagonalCrossed(char board[ROW][COL]) { 
+
+    if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != 0) 
+        return true; 
+          
+    if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != 0) 
+        return true; 
+  
+    return false; 
+} 
+
+bool checkWinner(char board[ROW][COL], const int& i, const int& j, const char& marker) {
+
+    return diagonalCrossed(board) || columnCrossed(board) || rowCrossed(board);
+
 }
+
 /*
 board 
 7 8 9
@@ -61,8 +90,8 @@ board
 
 int main(int argc, const char* argv[]) {
 
-    char board[ROW][COL];
-    char input = ' ';
+    char board[ROW][COL] = {0};
+    char input = 0;
 
     char player;
     char computer;
@@ -84,9 +113,10 @@ int main(int argc, const char* argv[]) {
     }
 
     showBoard(board);
+
     while(available_slots.size() > 0) {
 
-        char curr;
+        char marker;
         size_t target;
 
         if(player_turn) {
@@ -101,24 +131,38 @@ int main(int argc, const char* argv[]) {
                 std::cout << "already filled\n";
                 continue;
             }
-            curr = player;
+            marker = player;
         } else {
-            curr = computer;
+            marker = computer;
             auto random_it = std::next(available_slots.begin(), randNumGenerator(0, available_slots.size() - 1));
             target = *random_it;
         }
         
-        std::cout << "target : " << target << '\n';
+        // std::cout << "target : " << target << '\n';
 
-        moveTurn(board, target - 1, curr);
+        /* Calculate target index and Cross it out */
+        int idx = target - 1;
+        int i = abs(idx / COL - ROW) - 1;
+        int j = idx % COL;
+        board[i][j] = marker;
+
         available_slots.erase(target);
-
-        player_turn = !player_turn;
         
         showBoard(board);
-        for (auto& x : available_slots)
-            std::cout << x;
-        std::cout << '\n';
+
+        if (checkWinner(board, i, j, marker)) {
+            if (player_turn) {
+                std::cout << "PLAYER WIN!\n";
+            } else {
+                std::cout << "COMPUTER WIN!\n";
+            }
+            std::exit(EXIT_SUCCESS);
+        }
+        // for (auto& x : available_slots)
+        //     std::cout << x;
+        // std::cout << '\n';
+
+        player_turn = !player_turn;
     }
 
     std::cout << "GAME OVER\n";
