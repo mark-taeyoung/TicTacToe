@@ -6,6 +6,18 @@
 #define COL 3
 #define ROW 3
 
+struct Player{
+
+    bool isComputer;
+    char marker;
+
+    Player(bool isComputer1, char marker1) {
+        isComputer = isComputer1;
+        marker = marker1;
+    }
+
+};
+
 int randNumGenerator(const int& lo, const int& hi) {
 
     std::random_device device;
@@ -185,6 +197,8 @@ int main(int argc, const char* argv[]) {
     char player;
     char computer;
     bool player_turn = true;
+
+    Player you(false, 'O');
 
     std::unordered_set<size_t> available_slots;
     for (size_t  i = 1; i <= ROW * COL; ++i) {
