@@ -5,12 +5,6 @@
 #define COL 3
 #define ROW 3
 
-/* for returning best move row and col value */
-struct Move {
-    int row;
-    int col;
-};
-
 int randNumGenerator(const int& lo, const int& hi) {
 
     std::random_device device;
@@ -124,7 +118,7 @@ int main(int argc, const char* argv[]) {
         char marker;
         size_t target;
 
-        if(player_turn) {
+        if (player_turn) {
             std::cout << "Enter your move: ";
             std::cin >> input;
 

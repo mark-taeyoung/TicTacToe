@@ -1,9 +1,13 @@
 CC = g++
 CPPFLAGS = -std=c++11 -Wall
 
-default:
-	${CC} ${CPPFLAGS} TicTacToe.cpp -o TicTacToe
+TicTacToeRand:
+	${CC} ${CPPFLAGS} TicTacToeRand.cpp -o TicTacToeRand
+
+TicTacToeAi:
+	${CC} ${CPPFLAGS} TicTacToeAi.cpp -o TicTacToeAi
+
 clean:
-	rm -f TicTacToe
+	rm -f TicTacToeRand TicTacToeAi
 new:
-	make clean default
+	make clean TicTacToeRand TicTacToeAi
