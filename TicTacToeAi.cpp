@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <unordered_set>
+#include <limits>
 
 #define COL 3
 #define ROW 3
@@ -74,18 +75,107 @@ bool diagonalCrossed(const char board[ROW][COL]) {
     return false; 
 } 
 
-bool checkWinner(const char board[ROW][COL], const int& i, const int& j, const char& marker) {
+bool checkWinner(const char board[ROW][COL]) {
 
     return diagonalCrossed(board) || columnCrossed(board) || rowCrossed(board);
 
 }
 
-/*
-board 
+int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, bool player_turn, char marker, int depth) {
+
+    /* assuming maximizer is computer; make computer win */
+    if (checkWinner(board)) {
+        if (!player_turn)
+            return 10 - depth;
+        else
+            return -10 + depth;
+    }
+
+
+    if (available_slots.size() == 0) {
+        // std::cout << "pass\n";
+        return 0;
+    }
+
+    player_turn = !player_turn;
+
+    std::unordered_set<size_t> temp = available_slots;
+
+    if (!player_turn){
+        int best = std::numeric_limits<int>::min();
+        for (auto target : available_slots) {
+            int idx = target - 1;
+            int i = abs(idx / COL - ROW) - 1;
+            int j = idx % COL;
+
+            board[i][j] = marker;   //mark
+            temp.erase(target);
+
+            char next_marker = marker == 'O' ? 'X' : 'O';
+            best = std::max(best, minimax(board, temp, player_turn, next_marker, depth + 1));
+
+            board[i][j] = 0;        // undo
+            temp.insert(target);
+        }
+        return best;
+
+    } else {
+        int best = std::numeric_limits<int>::max();
+        for (auto target : available_slots) {
+            int idx = target - 1;
+            int i = abs(idx / COL - ROW) - 1;
+            int j = idx % COL;
+
+            board[i][j] = marker;   //mark
+            temp.erase(target);
+
+            char next_marker = marker == 'O' ? 'X' : 'O';
+            best = std::min(best, minimax(board, temp, player_turn, next_marker, depth + 1));
+
+            board[i][j] = 0;        // undo
+            temp.insert(target);
+        }
+        return best;
+    }
+}
+
+
+/* get optimal next choice with minimax algorithm */
+size_t getOptimalNext (char board[ROW][COL], std::unordered_set<size_t>& available_slots, char marker) {
+    int best_val = std::numeric_limits<int>::min();
+    size_t optimal = 0;
+    
+    std::unordered_set<size_t> temp = available_slots;
+    for (auto target : available_slots) {
+            int idx = target - 1;
+            int i = abs(idx / COL - ROW) - 1;
+            int j = idx % COL;
+
+            board[i][j] = marker;   //mark
+            temp.erase(target);
+        
+            char next_marker = marker == 'O' ? 'X' : 'O';
+            int curr = minimax(board, temp, false, next_marker, 0);
+            
+
+            board[i][j] = 0;        // undo
+            temp.insert(target);
+
+            if (curr > best_val) {
+                optimal = target;
+                best_val = curr;
+            }
+    }
+    
+    return optimal;
+}
+
+/***********
+board number
 7 8 9
 4 5 6
 1 2 3
- */
+ ***********/
 
 int main(int argc, const char* argv[]) {
 
@@ -133,8 +223,7 @@ int main(int argc, const char* argv[]) {
             marker = player;
         } else {
             marker = computer;
-            auto random_it = std::next(available_slots.begin(), randNumGenerator(0, available_slots.size() - 1));
-            target = *random_it;
+            target = getOptimalNext(board, available_slots, marker);
         }
         
         // std::cout << "target : " << target << '\n';
@@ -149,7 +238,7 @@ int main(int argc, const char* argv[]) {
         
         showBoard(board);
 
-        if (checkWinner(board, i, j, marker)) {
+        if (checkWinner(board)) {
             if (player_turn) {
                 std::cout << "PLAYER WIN!\n";
             } else {

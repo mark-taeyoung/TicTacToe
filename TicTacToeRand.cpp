@@ -74,7 +74,7 @@ bool diagonalCrossed(const char board[ROW][COL]) {
     return false; 
 } 
 
-bool checkWinner(const char board[ROW][COL], const int& i, const int& j, const char& marker) {
+bool checkWinner(const char board[ROW][COL]) {
 
     return diagonalCrossed(board) || columnCrossed(board) || rowCrossed(board);
 
@@ -149,7 +149,7 @@ int main(int argc, const char* argv[]) {
         
         showBoard(board);
 
-        if (checkWinner(board, i, j, marker)) {
+        if (checkWinner(board)) {
             if (player_turn) {
                 std::cout << "PLAYER WIN!\n";
             } else {
