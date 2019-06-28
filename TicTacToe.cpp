@@ -5,6 +5,11 @@
 #define COL 3
 #define ROW 3
 
+/* for returning best move row and col value */
+struct Move {
+    int row;
+    int col;
+};
 
 int randNumGenerator(const int& lo, const int& hi) {
 
@@ -44,7 +49,7 @@ void showBoard(char board[ROW][COL]) {
     return;
 }
 
-bool rowCrossed(char board[ROW][COL]) { 
+bool rowCrossed(const char board[ROW][COL]) { 
 
     for (int i=0; i<ROW; i++) { 
         if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != 0) 
@@ -54,7 +59,7 @@ bool rowCrossed(char board[ROW][COL]) {
     return false; 
 } 
 
-bool columnCrossed(char board[ROW][COL]) {
+bool columnCrossed(const char board[ROW][COL]) {
 
     for (int i=0; i<COL; i++) { 
         if (board[0][i] == board[1][i] && board[1][i] == board[2][i] &&  board[0][i] != 0) 
@@ -64,7 +69,7 @@ bool columnCrossed(char board[ROW][COL]) {
     return false ; 
 } 
   
-bool diagonalCrossed(char board[ROW][COL]) { 
+bool diagonalCrossed(const char board[ROW][COL]) { 
 
     if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != 0) 
         return true; 
@@ -75,7 +80,7 @@ bool diagonalCrossed(char board[ROW][COL]) {
     return false; 
 } 
 
-bool checkWinner(char board[ROW][COL], const int& i, const int& j, const char& marker) {
+bool checkWinner(const char board[ROW][COL], const int& i, const int& j, const char& marker) {
 
     return diagonalCrossed(board) || columnCrossed(board) || rowCrossed(board);
 
@@ -90,7 +95,7 @@ board
 
 int main(int argc, const char* argv[]) {
 
-    char board[ROW][COL] = {0};
+    char board[ROW][COL];
     char input = 0;
 
     char player;
