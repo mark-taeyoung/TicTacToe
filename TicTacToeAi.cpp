@@ -46,7 +46,7 @@ void showBoard(char board[ROW][COL]) {
 
 bool rowCrossed(const char board[ROW][COL]) { 
 
-    for (int i=0; i<ROW; i++) { 
+    for (size_t i = 0; i < ROW; ++i) { 
         if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != 0) 
             return true; 
     } 
@@ -56,7 +56,7 @@ bool rowCrossed(const char board[ROW][COL]) {
 
 bool columnCrossed(const char board[ROW][COL]) {
 
-    for (int i=0; i<COL; i++) { 
+    for (size_t i = 0; i < COL; ++i) { 
         if (board[0][i] == board[1][i] && board[1][i] == board[2][i] &&  board[0][i] != 0) 
             return true; 
     } 
@@ -103,7 +103,7 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
 
     if (!player_turn){
         int best = std::numeric_limits<int>::min();
-        for (auto target : available_slots) {
+        for (auto& target : available_slots) {
             int idx = target - 1;
             int i = abs(idx / COL - ROW) - 1;
             int j = idx % COL;
@@ -121,7 +121,7 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
 
     } else {
         int best = std::numeric_limits<int>::max();
-        for (auto target : available_slots) {
+        for (auto& target : available_slots) {
             int idx = target - 1;
             int i = abs(idx / COL - ROW) - 1;
             int j = idx % COL;
@@ -146,7 +146,7 @@ size_t getOptimalNext (char board[ROW][COL], std::unordered_set<size_t>& availab
     size_t optimal = 0;
     
     std::unordered_set<size_t> temp = available_slots;
-    for (auto target : available_slots) {
+    for (auto& target : available_slots) {
             int idx = target - 1;
             int i = abs(idx / COL - ROW) - 1;
             int j = idx % COL;
@@ -226,7 +226,6 @@ int main(int argc, const char* argv[]) {
             target = getOptimalNext(board, available_slots, marker);
         }
         
-        // std::cout << "target : " << target << '\n';
 
         /* Calculate target index and Cross it out */
         int idx = target - 1;
@@ -246,9 +245,6 @@ int main(int argc, const char* argv[]) {
             }
             std::exit(EXIT_SUCCESS);
         }
-        // for (auto& x : available_slots)
-        //     std::cout << x;
-        // std::cout << '\n';
 
         player_turn = !player_turn;
     }
