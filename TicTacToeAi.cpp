@@ -18,15 +18,6 @@ struct Player{
 
 };
 
-int randNumGenerator(const int& lo, const int& hi) {
-
-    std::random_device device;
-    std::mt19937 generator(device());
-    std::uniform_int_distribution<int> distribution(lo, hi);
-
-    return distribution(generator);
-}
-
 bool checkInput (const char& input, const char board[ROW][COL]) {
 
     if (!isdigit(input)) {
@@ -102,7 +93,6 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
         else
             return -10 + depth;
     }
-
 
     if (available_slots.size() == 0) {
         // std::cout << "pass\n";
@@ -192,37 +182,38 @@ board number
 int main(int argc, const char* argv[]) {
 
     char board[ROW][COL];
-    char input = 0;
-
-    char player;
-    char computer;
-    bool player_turn = true;
-
-    Player you(false, 'O');
 
     std::unordered_set<size_t> available_slots;
     for (size_t  i = 1; i <= ROW * COL; ++i) {
         available_slots.insert(i);
     }
-
+    
+    char yours;
     std::cout << "Choose O or X: ";
-    std::cin >> player;
+    std::cin >> yours;
 
-    if (player == 'O') {
-        computer = 'X';
+
+    Player* you =  new Player(false, yours);
+    Player* computer = nullptr;
+    Player* curr = nullptr;
+    if (yours == 'O') {
+        computer =  new Player(true, 'X');
+        curr = you;
+        std::cout << "pass\n";
     } else {
-        computer = 'O';
-        player_turn = false;
+        computer =  new Player(true, 'O');
+        curr = computer;
     }
 
     showBoard(board);
 
+
     while(available_slots.size() > 0) {
 
-        char marker;
         size_t target;
 
-        if (player_turn) {
+        if (!curr->isComputer) {
+            char input;
             std::cout << "Enter your move: ";
             std::cin >> input;
 
@@ -234,10 +225,8 @@ int main(int argc, const char* argv[]) {
                 std::cout << "already filled\n";
                 continue;
             }
-            marker = player;
         } else {
-            marker = computer;
-            target = getOptimalNext(board, available_slots, marker);
+            target = getOptimalNext(board, available_slots, curr->marker);
         }
         
 
@@ -245,14 +234,14 @@ int main(int argc, const char* argv[]) {
         int idx = target - 1;
         int i = abs(idx / COL - ROW) - 1;
         int j = idx % COL;
-        board[i][j] = marker;
+        board[i][j] = curr->marker;
 
         available_slots.erase(target);
         
         showBoard(board);
 
         if (checkWinner(board)) {
-            if (player_turn) {
+            if (!curr->isComputer) {
                 std::cout << "PLAYER WIN!\n";
             } else {
                 std::cout << "COMPUTER WIN!\n";
@@ -260,7 +249,7 @@ int main(int argc, const char* argv[]) {
             std::exit(EXIT_SUCCESS);
         }
 
-        player_turn = !player_turn;
+        curr = !curr->isComputer ? computer : you;
     }
 
     std::cout << "GAME OVER\n";
