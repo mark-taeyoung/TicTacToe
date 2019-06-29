@@ -113,7 +113,6 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
     }
 
     if (available_slots.size() == 0) {
-        // std::cout << "pass\n";
         return 0;
     }
 
@@ -212,7 +211,6 @@ int main(int argc, const char* argv[]) {
     if (yours == 'O') {
         computer =  new Player(true, 'X');
         curr = you;
-        std::cout << "pass\n";
     } else {
         computer =  new Player(true, 'O');
         curr = computer;
