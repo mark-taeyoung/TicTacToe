@@ -18,6 +18,24 @@ struct Player{
 
 };
 
+struct BoardIndex{
+    size_t row, col;
+
+    BoardIndex(int i) {
+        row = abs((i - 1) / COL - ROW) - 1;
+        col = (i - 1) % COL;
+    }
+};
+
+int randNumGenerator(const int& lo, const int& hi) {
+
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> distribution(lo, hi);
+
+    return distribution(generator);
+}
+
 bool checkInput (const char& input, const char board[ROW][COL]) {
 
     if (!isdigit(input)) {
@@ -106,17 +124,15 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
     if (!player_turn){
         int best = std::numeric_limits<int>::min();
         for (auto& target : available_slots) {
-            int idx = target - 1;
-            int i = abs(idx / COL - ROW) - 1;
-            int j = idx % COL;
+            BoardIndex x(target);
 
-            board[i][j] = marker;   //mark
+            board[x.row][x.col] = marker;   //mark
             temp.erase(target);
 
             char next_marker = marker == 'O' ? 'X' : 'O';
             best = std::max(best, minimax(board, temp, player_turn, next_marker, depth + 1));
 
-            board[i][j] = 0;        // undo
+            board[x.row][x.col] = 0;        // undo
             temp.insert(target);
         }
         return best;
@@ -124,17 +140,15 @@ int minimax(char board[ROW][COL], std::unordered_set<size_t>& available_slots, b
     } else {
         int best = std::numeric_limits<int>::max();
         for (auto& target : available_slots) {
-            int idx = target - 1;
-            int i = abs(idx / COL - ROW) - 1;
-            int j = idx % COL;
+            BoardIndex x(target);
 
-            board[i][j] = marker;   //mark
+            board[x.row][x.col] = marker;   //mark
             temp.erase(target);
 
             char next_marker = marker == 'O' ? 'X' : 'O';
             best = std::min(best, minimax(board, temp, player_turn, next_marker, depth + 1));
 
-            board[i][j] = 0;        // undo
+            board[x.row][x.col] = 0;        // undo
             temp.insert(target);
         }
         return best;
@@ -149,18 +163,16 @@ size_t getOptimalNext (char board[ROW][COL], std::unordered_set<size_t>& availab
     
     std::unordered_set<size_t> temp = available_slots;
     for (auto& target : available_slots) {
-            int idx = target - 1;
-            int i = abs(idx / COL - ROW) - 1;
-            int j = idx % COL;
+            BoardIndex x(target);
 
-            board[i][j] = marker;   //mark
+            board[x.row][x.col] = marker;   //mark
             temp.erase(target);
         
             char next_marker = marker == 'O' ? 'X' : 'O';
             int curr = minimax(board, temp, false, next_marker, 0);
             
 
-            board[i][j] = 0;        // undo
+            board[x.row][x.col] = 0;        // undo
             temp.insert(target);
 
             if (curr > best_val) {
@@ -180,6 +192,7 @@ board number
  ***********/
 
 int main(int argc, const char* argv[]) {
+    assert(COL == ROW);
 
     char board[ROW][COL];
 
@@ -226,15 +239,19 @@ int main(int argc, const char* argv[]) {
                 continue;
             }
         } else {
-            target = getOptimalNext(board, available_slots, curr->marker);
+            // if computer is first turn, get random target
+            if (available_slots.size() == ROW * COL) {
+                target = randNumGenerator(1, ROW * COL);
+            } else {
+                target = getOptimalNext(board, available_slots, curr->marker);
+            }
         }
         
 
         /* Calculate target index and Cross it out */
-        int idx = target - 1;
-        int i = abs(idx / COL - ROW) - 1;
-        int j = idx % COL;
-        board[i][j] = curr->marker;
+        BoardIndex x(target);
+
+        board[x.row][x.col] = curr->marker;
 
         available_slots.erase(target);
         
